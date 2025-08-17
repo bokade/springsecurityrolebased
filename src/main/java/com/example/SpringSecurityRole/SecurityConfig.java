@@ -46,7 +46,8 @@ public class SecurityConfig {
 
 
     // New style for Spring Security 6.1+
-    @Bean
+    //for simple login based on role
+   /* @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
@@ -55,7 +56,30 @@ public class SecurityConfig {
                 .httpBasic(basic -> {}); // <- ab is tarah likhna hai
 
         return http.build();
-    }
+    } */
+
+
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/login", "/error", "/unauthorized").permitAll() // login page sab ke liye open
+                    .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                    .loginPage("/login")              // custom login page ka URL
+                    .loginProcessingUrl("/doLogin")   // form submit hone ka action
+                    .defaultSuccessUrl("/success", true) // login success hone par
+                    .failureUrl("/login?error=true")  // login fail par redirect
+                    .permitAll()
+            )
+            .exceptionHandling(ex -> ex
+                    .accessDeniedPage("/unauthorized") // agar role match nahi hota
+            );
+
+    return http.build();
+}
+
 
 
 }
