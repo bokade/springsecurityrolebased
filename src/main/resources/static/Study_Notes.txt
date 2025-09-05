@@ -1,0 +1,113 @@
+📒 Spring Security – Quick Revision Notes (Organized)
+✅ 1. Basics
+
+@Configuration → Security config class define karne ke liye
+
+@EnableMethodSecurity(securedEnabled = true) → method-level security enable
+
+Enable karta hai → @Secured, @PreAuthorize, @PostAuthorize
+
+⚡ Isko SecurityConfig class par lagate hain (jo @Configuration hoti hai aur SecurityFilterChain define karti hai)
+
+✅ 2. Users & Roles
+
+UserDetailsService → Spring Security ko user info provide karta hai
+
+InMemoryUserDetailsManager → memory-based user storage (DB ke bina)
+
+Example user create:
+
+User.withUsername("name")
+    .password(encoder.encode("pass"))
+    .roles("ROLE")
+    .build();
+
+✅ 3. Password
+
+PasswordEncoder compulsory (raw password allowed nahi)
+
+Recommended → BCryptPasswordEncoder (secure hashing)
+
+✅ 4. SecurityFilterChain
+🔹 Important configs
+
+csrf.disable() → learning me theek, production me enable karna zaroori
+
+authorizeHttpRequests() → kis URL ko allow/deny karna hai
+
+🔹 formLogin() fields
+
+loginPage("/login") → custom login page (GET request)
+
+loginProcessingUrl("/doLogin") → form POST submit yaha hoga (Spring handle karega)
+
+defaultSuccessUrl("/success", true) → login ke baad redirect
+
+true → hamesha /success par hi redirect
+
+failureUrl("/login?error=true") → login fail par redirect
+
+permitAll() → login related pages sab access kar sakte hain
+
+🔹 exceptionHandling()
+
+accessDeniedPage("/unauthorized") → agar role/authority match nahi karta to redirect
+
+✅ 5. Default Login Flow
+
+User /login page open karega
+
+Form POST karega → /doLogin
+
+Agar success → /success
+
+Agar fail → /login?error=true
+
+Agar unauthorized role → /unauthorized
+
+✅ 6. Method-Level Security Annotations
+🔹 @Secured
+@Secured("ROLE_ADMIN")
+
+
+Checks before method call
+
+Simple aur fast role check
+
+⚠️ ROLE_ prefix required
+
+🔹 @PreAuthorize
+@PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+
+
+Checks before method call
+
+Supports SpEL (Spring Expression Language) → complex conditions likh sakte ho
+
+hasRole('ADMIN') internally = ROLE_ADMIN
+
+🔹 @PostAuthorize
+@PostAuthorize("returnObject.owner == authentication.name or hasRole('ADMIN')")
+
+
+Checks after method execution
+
+Useful jab return value authorize karni ho
+
+Keywords:
+
+returnObject = return value
+
+authentication.name = logged-in username
+
+✅ 7. Best Practices
+
+Simple role check → use @Secured
+
+Complex multi-role / user-specific condition → use @PreAuthorize
+
+Return object based check → use @PostAuthorize
+
+Controller par → API-level restriction
+
+Service par → business logic level restriction (more secure & reusable)

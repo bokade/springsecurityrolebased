@@ -68,10 +68,10 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
             )
             .formLogin(form -> form
                     .loginPage("/login")              // custom login page ka URL
-                    .loginProcessingUrl("/doLogin")   // form submit hone ka action
-                    .defaultSuccessUrl("/success", true) // login success hone par
-                    .failureUrl("/login?error=true")  // login fail par redirect
-                    .permitAll()
+                    .loginProcessingUrl("/doLogin")   // form submit hone ka action // login form ke <form action="..."> submit hoga yaha (POST request)
+                    .defaultSuccessUrl("/success", true) // login success hone par successful redirect
+                    .failureUrl("/login?error=true")  // login fail par redirect wapas login page
+                    .permitAll()  // sabko login page access ki permission
             )
             .exceptionHandling(ex -> ex
                     .accessDeniedPage("/unauthorized") // agar role match nahi hota
