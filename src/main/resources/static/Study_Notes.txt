@@ -159,7 +159,46 @@ UserDetailsService → user fetch karega (in-memory/DB)
 
 PasswordEncoder se password verify hoga
 
-✅ 9. Best Practices
+✅ 9. CSRF (Cross-Site Request Forgery)
+
+Definition:
+CSRF ek attack hai jisme ek malicious website user ke browser ko trick karti hai taaki wo bina user ke knowledge ke kisi dusre site (jaise bank app) par request execute kar de.
+
+Example:
+Agar user bank.com me login hai aur simultaneously kisi attacker site pe chala gaya, to attacker site ek hidden form POST karke "fund transfer" request trigger kar sakta hai (kyunki browser cookies/session ke sath request bhej dega).
+
+Spring Security Protection:
+
+Spring Security har HTML form me ek hidden CSRF token add karta hai:
+
+<input type="hidden" name="_csrf" value="abc123xyz"/>
+
+
+Har POST/PUT/DELETE request ke sath ye token bhejna compulsory hota hai
+
+Server token validate karega (session stored value se match karega)
+
+Agar token match nahi hua → request reject (403 Forbidden)
+
+Why disable in learning?
+
+Demo/testing me forms banate waqt token manage karna unnecessary complexity lagta hai
+
+Isliye .csrf().disable() kar dete hain
+
+Production me kabhi disable nahi karna (warna app CSRF vulnerable ho jata hai)
+
+Flow:
+
+User login → server ek CSRF token generate karke session me store karta hai
+
+Page render hote waqt token HTML form me inject hota hai
+
+Jab user POST/PUT/DELETE karega → token request body/header ke sath aayega
+
+Spring Security token validate karega → sahi hai to request proceed, nahi to reject
+
+✅ 10. Best Practices
 
 Simple role check → use @Secured
 
@@ -171,10 +210,14 @@ Controller par → API-level restriction
 
 Service par → business logic level restriction (more secure & reusable)
 
-👉 Bhai ab flow clear ho gaya:
+CSRF ko production me hamesha enable rakho
+
+👉 Ab flow aur clear:
 
 Form Submit → UsernamePasswordAuthenticationFilter
 
 Auth Check → AuthenticationManager → AuthenticationProvider → UserDetailsService + PasswordEncoder
 
-Result → Success (SecurityContext set) / Failure (error redirect)
+CSRF Token Check → Spring Security validate karega
+
+Result → Success (SecurityContext set) / Failure (error redirect / 403 forbidden)
